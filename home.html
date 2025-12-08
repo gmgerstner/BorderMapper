@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlas Fictiva — Border Mapper</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --parchment: #f4f1e8;
+            --ink-dark: #1a1613;
+            --ink-medium: #3d3731;
+            --atlas-blue: #2c5f7f;
+            --atlas-red: #8b3a3a;
+            --atlas-green: #3a5e3e;
+            --gold: #d4af37;
+            --shadow: rgba(0, 0, 0, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            background: linear-gradient(135deg, #1a1613 0%, #2d2620 100%);
+            color: var(--parchment);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        #root {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .app-header {
+            background: linear-gradient(180deg, rgba(26, 22, 19, 0.95) 0%, rgba(45, 38, 32, 0.9) 100%);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--gold);
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 20px var(--shadow);
+            z-index: 1000;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .title-section h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: var(--gold);
+            margin-bottom: 0.25rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .title-section p {
+            font-size: 0.95rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--parchment);
+            opacity: 0.8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        button {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--gold);
+            background: rgba(212, 175, 55, 0.1);
+            color: var(--parchment);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(212, 175, 55, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:hover {
+            border-color: var(--parchment);
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .map-container {
+            flex: 1;
+            position: relative;
+            border: 3px solid var(--gold);
+            margin: 1.5rem;
+            box-shadow: 
+                inset 0 0 50px rgba(0, 0, 0, 0.5),
+                0 10px 40px rgba(0, 0, 0, 0.6);
+            animation: fadeIn 0.8s ease-out 0.3s both;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #map {
+            height: 100%;
+            width: 100%;
+            background: #1a2332;
+        }
+
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 22, 19, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            padding: 1.5rem;
+            border-radius: 0;
+            min-width: 250px;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            animation: slideLeft 0.6s ease-out 0.5s both;
+        }
+
+        @keyframes slideLeft {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .info-panel h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 0.5rem;
+        }
+
+        .info-panel p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--parchment);
+            margin-bottom: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+        }
+
+        .info-panel strong {
+            color: var(--gold);
+            font-weight: 600;
+        }
+
+        /* Leaflet customization */
+        .leaflet-control-container {
+            filter: sepia(20%) brightness(0.9);
+            position: relative !important;
+            z-index: 2000 !important;
+        }
+
+        .leaflet-control-container * {
+            z-index: 2001 !important;
+        }
+
+        .leaflet-top,
+        .leaflet-bottom {
+            z-index: 2002 !important;
+        }
+
+        .leaflet-draw-toolbar,
+        .leaflet-draw-actions {
+            z-index: 2003 !important;
+        }
+
+        .leaflet-draw-toolbar a {
+            background-color: rgba(26, 22, 19, 0.9) !important;
+            border: 1px solid var(--gold) !important;
+            position: relative !important;
+            z-index: 2004 !important;
+        }
+
+        .leaflet-draw-toolbar a:hover {
+            background-color: rgba(212, 175, 55, 0.2) !important;
+        }
+
+        .leaflet-draw-actions a {
+            z-index: 2004 !important;
+        }
+
+        .leaflet-popup-content-wrapper {
+            background: rgba(26, 22, 19, 0.95);
+            color: var(--parchment);
+            border: 2px solid var(--gold);
+            font-family: 'Cormorant Garamond', serif;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(26, 22, 19, 0.95);
+        }
+
+        /* File input styling */
+        input[type="file"] {
+            display: none;
+        }
+
+        .file-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--atlas-blue);
+            background: rgba(44, 95, 127, 0.1);
+            color: var(--parchment);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .file-label:hover {
+            border-color: var(--parchment);
+            background: rgba(44, 95, 127, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(44, 95, 127, 0.3);
+        }
+
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 22, 19, 0.98);
+            border: 3px solid var(--gold);
+            padding: 2rem 3rem;
+            z-index: 10000;
+            font-size: 1.2rem;
+            color: var(--parchment);
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8);
+            animation: popIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Decorative corner elements */
+        .corner-decoration {
+            position: fixed;
+            width: 80px;
+            height: 80px;
+            border: 2px solid var(--gold);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .corner-decoration.top-left {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.top-right {
+            top: 10px;
+            right: 10px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-decoration.bottom-left {
+            bottom: 10px;
+            left: 10px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-decoration.bottom-right {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <div class="corner-decoration top-left"></div>
+    <div class="corner-decoration top-right"></div>
+    <div class="corner-decoration bottom-left"></div>
+    <div class="corner-decoration bottom-right"></div>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function BorderMapper() {
+            const mapRef = useRef(null);
+            const mapInstanceRef = useRef(null);
+            const drawnItemsRef = useRef(null);
+            const [borderCount, setBorderCount] = useState(0);
+            const [notification, setNotification] = useState('');
+
+            useEffect(() => {
+                if (!mapInstanceRef.current) {
+                    // Initialize map with EPSG4326 projection (matching Arkonus reference)
+                    const map = L.map(mapRef.current, {
+                        crs: L.CRS.EPSG4326
+                    }).setView([0, 0], 2);
+
+                    // Add custom Arkonus tile layer (relative path as in reference)
+                    L.tileLayer('https://tiles.gmgdigitaltechnologies.com/arkonus/images/{z}/{y}/{x}.jpg', {
+                        maxZoom: 7,
+                        attribution: '&copy; <a href="https://gmgdigitaltechnologies.com">GMG DT</a>'
+                    }).addTo(map);
+
+                    // Initialize drawn items layer
+                    const drawnItems = new L.FeatureGroup();
+                    map.addLayer(drawnItems);
+                    drawnItemsRef.current = drawnItems;
+
+                    // Add draw control
+                    const drawControl = new L.Control.Draw({
+                        position: 'topleft',
+                        draw: {
+                            polygon: {
+                                shapeOptions: {
+                                    color: '#d4af37',
+                                    weight: 3,
+                                    opacity: 0.8,
+                                    fillOpacity: 0.3
+                                },
+                                allowIntersection: false,
+                                showArea: true
+                            },
+                            polyline: {
+                                shapeOptions: {
+                                    color: '#d4af37',
+                                    weight: 4,
+                                    opacity: 0.9
+                                }
+                            },
+                            rectangle: {
+                                shapeOptions: {
+                                    color: '#d4af37',
+                                    weight: 3,
+                                    opacity: 0.8,
+                                    fillOpacity: 0.3
+                                }
+                            },
+                            circle: false,
+                            circlemarker: false,
+                            marker: true
+                        },
+                        edit: {
+                            featureGroup: drawnItems,
+                            remove: true
+                        }
+                    });
+                    map.addControl(drawControl);
+
+                    // Event handlers
+                    map.on(L.Draw.Event.CREATED, (event) => {
+                        const layer = event.layer;
+                        
+                        // Randomize colors for variety
+                        const colors = ['#d4af37', '#8b3a3a', '#3a5e3e', '#2c5f7f'];
+                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                        
+                        if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+                            layer.setStyle({
+                                color: randomColor,
+                                weight: 3,
+                                opacity: 0.8,
+                                fillOpacity: 0.3
+                            });
+                        } else if (layer instanceof L.Polyline) {
+                            layer.setStyle({
+                                color: randomColor,
+                                weight: 4,
+                                opacity: 0.9
+                            });
+                        }
+
+                        // Add popup for naming
+                        const borderName = `Border ${drawnItemsRef.current.getLayers().length + 1}`;
+                        layer.bindPopup(`<strong>${borderName}</strong><br><small>Click to edit properties</small>`);
+                        
+                        drawnItems.addLayer(layer);
+                        setBorderCount(drawnItemsRef.current.getLayers().length);
+                    });
+
+                    map.on(L.Draw.Event.DELETED, () => {
+                        setBorderCount(drawnItemsRef.current.getLayers().length);
+                    });
+
+                    mapInstanceRef.current = map;
+                }
+
+                return () => {
+                    if (mapInstanceRef.current) {
+                        mapInstanceRef.current.remove();
+                        mapInstanceRef.current = null;
+                    }
+                };
+            }, []);
+
+            const showNotification = (message) => {
+                setNotification(message);
+                setTimeout(() => setNotification(''), 2000);
+            };
+
+            const handleSave = () => {
+                if (!drawnItemsRef.current || drawnItemsRef.current.getLayers().length === 0) {
+                    showNotification('No borders to save!');
+                    return;
+                }
+
+                const data = drawnItemsRef.current.toGeoJSON();
+                const dataStr = JSON.stringify(data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `fictional-borders-${Date.now()}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+
+                showNotification('Borders saved successfully!');
+            };
+
+            const handleLoad = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+                        
+                        // Clear existing layers
+                        drawnItemsRef.current.clearLayers();
+                        
+                        // Add loaded layers
+                        L.geoJSON(data, {
+                            style: (feature) => ({
+                                color: '#d4af37',
+                                weight: 3,
+                                opacity: 0.8,
+                                fillOpacity: 0.3
+                            }),
+                            onEachFeature: (feature, layer) => {
+                                drawnItemsRef.current.addLayer(layer);
+                                
+                                // Add popup
+                                const borderName = `Border ${drawnItemsRef.current.getLayers().length}`;
+                                layer.bindPopup(`<strong>${borderName}</strong><br><small>Click to edit properties</small>`);
+                            }
+                        });
+
+                        setBorderCount(drawnItemsRef.current.getLayers().length);
+                        showNotification('Borders loaded successfully!');
+                    } catch (error) {
+                        showNotification('Error loading file!');
+                        console.error('Error loading borders:', error);
+                    }
+                };
+                reader.readAsText(file);
+                
+                // Reset input
+                event.target.value = '';
+            };
+
+            const handleClear = () => {
+                if (drawnItemsRef.current && window.confirm('Clear all borders? This cannot be undone.')) {
+                    drawnItemsRef.current.clearLayers();
+                    setBorderCount(0);
+                    showNotification('All borders cleared');
+                }
+            };
+
+            return (
+                <>
+                    <div className="app-header">
+                        <div className="header-content">
+                            <div className="title-section">
+                                <h1>Atlas Fictiva</h1>
+                                <p>Cartographic Border Mapper</p>
+                            </div>
+                            <div className="controls">
+                                <button onClick={handleSave}>
+                                    <span>Save Borders</span>
+                                </button>
+                                <label htmlFor="file-upload" className="file-label">
+                                    Load Borders
+                                </label>
+                                <input
+                                    id="file-upload"
+                                    type="file"
+                                    accept=".json"
+                                    onChange={handleLoad}
+                                />
+                                <button onClick={handleClear} style={{ borderColor: '#8b3a3a' }}>
+                                    <span>Clear All</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="map-container">
+                        <div ref={mapRef} id="map"></div>
+                        <div className="info-panel">
+                            <h3>Instructions</h3>
+                            <p><strong>Draw:</strong> Use toolbar to create polygons, lines, or markers</p>
+                            <p><strong>Edit:</strong> Click edit icon, modify shapes, then save</p>
+                            <p><strong>Delete:</strong> Click trash icon to remove borders</p>
+                            <p><strong>Borders:</strong> {borderCount} drawn</p>
+                        </div>
+                    </div>
+
+                    {notification && (
+                        <div className="notification">
+                            {notification}
+                        </div>
+                    )}
+                </>
+            );
+        }
+
+        ReactDOM.render(<BorderMapper />, document.getElementById('root'));
+    </script>
+</body>
+</html>
