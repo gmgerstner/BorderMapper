@@ -433,13 +433,17 @@
                 if (!mapInstanceRef.current) {
                     // Initialize map with EPSG4326 projection (matching Arkonus reference)
                     const map = L.map(mapRef.current, {
-                        crs: L.CRS.EPSG4326
+                        crs: L.CRS.EPSG4326,
+                        maxBounds: [[-90, -180], [90, 180]], // Restrict to valid lat/lng bounds
+                        maxBoundsViscosity: 1.0 // Makes the bounds "hard" - can't drag outside
                     }).setView([0, 0], 2);
 
                     // Add custom Arkonus tile layer (relative path as in reference)
                     L.tileLayer('https://tiles.gmgdigitaltechnologies.com/arkonus/images/{z}/{y}/{x}.jpg', {
                         maxZoom: 7,
-                        attribution: '&copy; <a href="https://gmgdigitaltechnologies.com">GMG DT</a>'
+                        attribution: '&copy; <a href="https://gmgdigitaltechnologies.com">GMG DT</a>',
+                        bounds: [[-90, -180], [90, 180]], // Tile layer bounds
+                        noWrap: true // Prevent tiles from wrapping
                     }).addTo(map);
 
                     // Initialize drawn items layer
