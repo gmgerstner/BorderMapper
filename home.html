@@ -292,10 +292,16 @@
             border: 2px solid var(--gold);
             font-family: 'Cormorant Garamond', serif;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+            border-radius: 0;
         }
 
         .leaflet-popup-tip {
             background: rgba(26, 22, 19, 0.95);
+            border: 1px solid var(--gold);
+        }
+
+        .leaflet-popup-content {
+            margin: 0.75rem 1rem;
         }
 
         /* File input styling */
@@ -392,6 +398,289 @@
             border-left: none;
             border-top: none;
         }
+
+        /* Territory naming modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            animation: fadeInOverlay 0.3s ease;
+        }
+
+        @keyframes fadeInOverlay {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: linear-gradient(180deg, rgba(26, 22, 19, 0.98) 0%, rgba(35, 30, 25, 0.98) 100%);
+            border: 3px solid var(--gold);
+            padding: 2rem 2.5rem;
+            min-width: 400px;
+            max-width: 500px;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.8),
+                inset 0 1px 0 rgba(212, 175, 55, 0.2);
+            animation: modalSlideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-30px) scale(0.9);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-align: center;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(244, 241, 232, 0.05);
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            color: var(--parchment);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input[type="text"]:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--gold);
+            background: rgba(244, 241, 232, 0.1);
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group select {
+            cursor: pointer;
+        }
+
+        .form-group select option {
+            background: #1a1613;
+            color: var(--parchment);
+        }
+
+        .color-preview {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gold);
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        .modal-buttons button {
+            min-width: 120px;
+        }
+
+        .btn-cancel {
+            border-color: var(--atlas-red) !important;
+            background: rgba(139, 58, 58, 0.1) !important;
+        }
+
+        .btn-cancel:hover {
+            background: rgba(139, 58, 58, 0.2) !important;
+            border-color: var(--parchment) !important;
+        }
+
+        .btn-save {
+            border-color: var(--atlas-green) !important;
+            background: rgba(58, 94, 62, 0.1) !important;
+        }
+
+        .btn-save:hover {
+            background: rgba(58, 94, 62, 0.2) !important;
+            border-color: var(--parchment) !important;
+        }
+
+        /* Territory list panel */
+        .territory-list {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(26, 22, 19, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            padding: 0.75rem 1rem;
+            max-width: 280px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+        }
+
+        .territory-list.hidden {
+            transform: translateX(calc(-100% - 20px));
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .territory-list h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+            padding-bottom: 0.35rem;
+        }
+
+        .territory-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0;
+            border-bottom: 1px solid rgba(212, 175, 55, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .territory-item:hover {
+            background: rgba(212, 175, 55, 0.1);
+            padding-left: 0.5rem;
+        }
+
+        .territory-item:last-child {
+            border-bottom: none;
+        }
+
+        .territory-color {
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--gold);
+            flex-shrink: 0;
+        }
+
+        .territory-name {
+            font-size: 0.85rem;
+            color: var(--parchment);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .toggle-territories {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(26, 22, 19, 0.92);
+            backdrop-filter: blur(10px);
+            border: 2px solid var(--gold);
+            padding: 0.5rem 0.75rem;
+            z-index: 1000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .toggle-territories:hover {
+            background: rgba(212, 175, 55, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .toggle-territories.panel-visible {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Custom scrollbar for territory list */
+        .territory-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .territory-list::-webkit-scrollbar-track {
+            background: rgba(212, 175, 55, 0.1);
+        }
+
+        .territory-list::-webkit-scrollbar-thumb {
+            background: var(--gold);
+            border-radius: 3px;
+        }
+
+        /* Map labels for territory names */
+        .territory-label {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            font-family: 'Cormorant Garamond', serif !important;
+            font-size: 14px !important;
+            font-weight: 600 !important;
+            color: var(--parchment) !important;
+            text-shadow: 
+                1px 1px 2px rgba(0,0,0,0.9),
+                -1px -1px 2px rgba(0,0,0,0.9),
+                1px -1px 2px rgba(0,0,0,0.9),
+                -1px 1px 2px rgba(0,0,0,0.9) !important;
+            white-space: nowrap !important;
+        }
+
+        .territory-label::before {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
@@ -409,37 +698,289 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // Color palette for territories
+        const TERRITORY_COLORS = [
+            { name: 'Royal Gold', value: '#d4af37' },
+            { name: 'Crimson Empire', value: '#8b3a3a' },
+            { name: 'Forest Realm', value: '#3a5e3e' },
+            { name: 'Azure Kingdom', value: '#2c5f7f' },
+            { name: 'Violet Dominion', value: '#6b4c7a' },
+            { name: 'Amber Duchy', value: '#b87333' },
+            { name: 'Jade Province', value: '#4a7c59' },
+            { name: 'Slate Confederation', value: '#5a6672' }
+        ];
+
+        // Territory naming modal component
+        function TerritoryModal({ isOpen, onClose, onSave, initialData, isEditing }) {
+            const [name, setName] = useState('');
+            const [description, setDescription] = useState('');
+            const [color, setColor] = useState(TERRITORY_COLORS[0].value);
+            const inputRef = useRef(null);
+
+            useEffect(() => {
+                if (isOpen) {
+                    setName(initialData?.name || '');
+                    setDescription(initialData?.description || '');
+                    setColor(initialData?.color || TERRITORY_COLORS[Math.floor(Math.random() * TERRITORY_COLORS.length)].value);
+                    
+                    // Focus input after a short delay
+                    setTimeout(() => {
+                        inputRef.current?.focus();
+                        inputRef.current?.select();
+                    }, 100);
+                }
+            }, [isOpen, initialData]);
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                onSave({
+                    name: name.trim() || 'Unnamed Territory',
+                    description: description.trim(),
+                    color
+                });
+            };
+
+            const handleKeyDown = (e) => {
+                if (e.key === 'Escape') {
+                    onClose();
+                }
+            };
+
+            if (!isOpen) return null;
+
+            return (
+                <div className="modal-overlay" onClick={onClose} onKeyDown={handleKeyDown}>
+                    <div className="modal-content" onClick={e => e.stopPropagation()}>
+                        <h2>{isEditing ? 'Edit Territory' : 'Name Your Territory'}</h2>
+                        <form onSubmit={handleSubmit}>
+                            <div className="form-group">
+                                <label htmlFor="territory-name">Territory Name</label>
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    id="territory-name"
+                                    value={name}
+                                    onChange={e => setName(e.target.value)}
+                                    placeholder="e.g., Kingdom of Northwind"
+                                    maxLength={50}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="territory-desc">Description (Optional)</label>
+                                <textarea
+                                    id="territory-desc"
+                                    value={description}
+                                    onChange={e => setDescription(e.target.value)}
+                                    placeholder="A brief description of this territory..."
+                                    maxLength={200}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label htmlFor="territory-color">
+                                    Border Color
+                                    <span 
+                                        className="color-preview" 
+                                        style={{ backgroundColor: color }}
+                                    />
+                                </label>
+                                <select
+                                    id="territory-color"
+                                    value={color}
+                                    onChange={e => setColor(e.target.value)}
+                                >
+                                    {TERRITORY_COLORS.map(c => (
+                                        <option key={c.value} value={c.value}>
+                                            {c.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="modal-buttons">
+                                <button type="button" className="btn-cancel" onClick={onClose}>
+                                    <span>Cancel</span>
+                                </button>
+                                <button type="submit" className="btn-save">
+                                    <span>{isEditing ? 'Update' : 'Create'}</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            );
+        }
+
+        // Territory list component
+        function TerritoryList({ territories, onSelect, onClose, isVisible }) {
+            if (territories.length === 0) {
+                return null;
+            }
+
+            return (
+                <div className={`territory-list ${!isVisible ? 'hidden' : ''}`}>
+                    <h3>
+                        Territories ({territories.length})
+                        <button 
+                            onClick={onClose}
+                            style={{
+                                float: 'right',
+                                background: 'none',
+                                border: 'none',
+                                color: 'var(--gold)',
+                                cursor: 'pointer',
+                                fontSize: '1.2rem',
+                                padding: '0',
+                                lineHeight: '1',
+                                marginTop: '-0.15rem'
+                            }}
+                        >
+                            ×
+                        </button>
+                    </h3>
+                    {territories.map((t, index) => (
+                        <div 
+                            key={t.id || index} 
+                            className="territory-item"
+                            onClick={() => onSelect(t)}
+                            title={t.description || 'Click to zoom'}
+                        >
+                            <span 
+                                className="territory-color" 
+                                style={{ backgroundColor: t.color }}
+                            />
+                            <span className="territory-name">{t.name}</span>
+                        </div>
+                    ))}
+                </div>
+            );
+        }
 
         function BorderMapper() {
             const mapRef = useRef(null);
             const mapInstanceRef = useRef(null);
             const drawnItemsRef = useRef(null);
+            const labelsLayerRef = useRef(null);
+            const pendingLayerRef = useRef(null);
+            
             const [borderCount, setBorderCount] = useState(0);
             const [notification, setNotification] = useState('');
             const [showInstructions, setShowInstructions] = useState(false);
+            const [showTerritoryList, setShowTerritoryList] = useState(true);
+            const [territories, setTerritories] = useState([]);
+            
+            // Modal state
+            const [modalOpen, setModalOpen] = useState(false);
+            const [editingTerritory, setEditingTerritory] = useState(null);
+            const [isEditMode, setIsEditMode] = useState(false);
+
+            // Update territories list from drawn items
+            const updateTerritoriesList = useCallback(() => {
+                if (!drawnItemsRef.current) return;
+                
+                const items = [];
+                drawnItemsRef.current.eachLayer(layer => {
+                    const props = layer.feature?.properties || {};
+                    items.push({
+                        id: L.stamp(layer),
+                        name: props.name || 'Unnamed Territory',
+                        description: props.description || '',
+                        color: props.color || '#d4af37',
+                        layer: layer
+                    });
+                });
+                setTerritories(items);
+                setBorderCount(items.length);
+            }, []);
+
+            // Update map labels
+            const updateLabels = useCallback(() => {
+                if (!labelsLayerRef.current || !drawnItemsRef.current) return;
+                
+                // Clear existing labels
+                labelsLayerRef.current.clearLayers();
+                
+                // Add label for each territory
+                drawnItemsRef.current.eachLayer(layer => {
+                    const props = layer.feature?.properties || {};
+                    const name = props.name;
+                    
+                    if (name && layer.getBounds) {
+                        const center = layer.getBounds().getCenter();
+                        const label = L.marker(center, {
+                            icon: L.divIcon({
+                                className: 'territory-label',
+                                html: name,
+                                iconSize: null
+                            }),
+                            interactive: false
+                        });
+                        labelsLayerRef.current.addLayer(label);
+                    }
+                });
+            }, []);
+
+            // Initialize a layer with feature properties
+            const initializeLayerFeature = (layer, props = {}) => {
+                layer.feature = layer.feature || { type: 'Feature', properties: {} };
+                layer.feature.properties = {
+                    ...layer.feature.properties,
+                    ...props
+                };
+            };
+
+            // Apply styling to a layer
+            const applyLayerStyle = (layer, color) => {
+                if (layer.setStyle) {
+                    layer.setStyle({
+                        color: color,
+                        weight: 3,
+                        opacity: 0.8,
+                        fillOpacity: 0.3
+                    });
+                }
+            };
+
+            // Create popup content for a territory
+            const createPopupContent = (props) => {
+                return `
+                    <div style="min-width: 150px;">
+                        <h4 style="margin: 0 0 0.5rem 0; color: var(--gold); font-size: 1.2rem; border-bottom: 1px solid rgba(212,175,55,0.3); padding-bottom: 0.5rem;">
+                            ${props.name || 'Unnamed Territory'}
+                        </h4>
+                        ${props.description ? `<p style="margin: 0 0 0.5rem 0; font-size: 0.9rem; opacity: 0.9;">${props.description}</p>` : ''}
+                        <p style="margin: 0; font-size: 0.8rem; opacity: 0.7; font-family: 'JetBrains Mono', monospace;">
+                            Click to edit
+                        </p>
+                    </div>
+                `;
+            };
 
             useEffect(() => {
                 if (!mapInstanceRef.current) {
-                    // Initialize map with EPSG4326 projection (matching Arkonus reference)
+                    // Initialize map
                     const map = L.map(mapRef.current, {
                         crs: L.CRS.EPSG4326,
-                        maxBounds: [[-90, -180], [90, 180]], // Restrict to valid lat/lng bounds
-                        maxBoundsViscosity: 1.0 // Makes the bounds "hard" - can't drag outside
+                        maxBounds: [[-90, -180], [90, 180]],
+                        maxBoundsViscosity: 1.0
                     }).setView([0, 0], 2);
 
-                    // Add custom Arkonus tile layer (relative path as in reference)
+                    // Add tile layer
                     L.tileLayer('https://tiles.gmgdigitaltechnologies.com/arkonus/images/{z}/{y}/{x}.jpg', {
                         maxZoom: 7,
                         attribution: '&copy; <a href="https://gmgdigitaltechnologies.com">GMG DT</a>',
-                        bounds: [[-90, -180], [90, 180]], // Tile layer bounds
-                        noWrap: false // Prevent tiles from wrapping
+                        bounds: [[-90, -180], [90, 180]],
+                        noWrap: false
                     }).addTo(map);
 
-                    // Initialize drawn items layer
+                    // Initialize feature groups
                     const drawnItems = new L.FeatureGroup();
                     map.addLayer(drawnItems);
                     drawnItemsRef.current = drawnItems;
+
+                    const labelsLayer = new L.FeatureGroup();
+                    map.addLayer(labelsLayer);
+                    labelsLayerRef.current = labelsLayer;
 
                     // Add draw control
                     const drawControl = new L.Control.Draw({
@@ -481,39 +1022,24 @@
                     });
                     map.addControl(drawControl);
 
-                    // Event handlers
+                    // Handle shape creation - open modal
                     map.on(L.Draw.Event.CREATED, (event) => {
                         const layer = event.layer;
-                        
-                        // Randomize colors for variety
-                        const colors = ['#d4af37', '#8b3a3a', '#3a5e3e', '#2c5f7f'];
-                        const randomColor = colors[Math.floor(Math.random() * colors.length)];
-                        
-                        if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-                            layer.setStyle({
-                                color: randomColor,
-                                weight: 3,
-                                opacity: 0.8,
-                                fillOpacity: 0.3
-                            });
-                        } else if (layer instanceof L.Polyline) {
-                            layer.setStyle({
-                                color: randomColor,
-                                weight: 4,
-                                opacity: 0.9
-                            });
-                        }
-
-                        // Add popup for naming
-                        const borderName = `Border ${drawnItemsRef.current.getLayers().length + 1}`;
-                        layer.bindPopup(`<strong>${borderName}</strong><br><small>Click to edit properties</small>`);
-                        
-                        drawnItems.addLayer(layer);
-                        setBorderCount(drawnItemsRef.current.getLayers().length);
+                        pendingLayerRef.current = layer;
+                        setIsEditMode(false);
+                        setEditingTerritory(null);
+                        setModalOpen(true);
                     });
 
+                    // Handle deletion
                     map.on(L.Draw.Event.DELETED, () => {
-                        setBorderCount(drawnItemsRef.current.getLayers().length);
+                        updateTerritoriesList();
+                        updateLabels();
+                    });
+
+                    // Handle edit completion
+                    map.on(L.Draw.Event.EDITED, () => {
+                        updateLabels();
                     });
 
                     mapInstanceRef.current = map;
@@ -525,11 +1051,75 @@
                         mapInstanceRef.current = null;
                     }
                 };
-            }, []);
+            }, [updateTerritoriesList, updateLabels]);
 
             const showNotification = (message) => {
                 setNotification(message);
                 setTimeout(() => setNotification(''), 2000);
+            };
+
+            // Handle modal save for new territory
+            const handleModalSave = (data) => {
+                if (isEditMode && editingTerritory) {
+                    // Editing existing territory
+                    const layer = editingTerritory.layer;
+                    initializeLayerFeature(layer, data);
+                    applyLayerStyle(layer, data.color);
+                    layer.setPopupContent(createPopupContent(data));
+                    
+                    showNotification(`"${data.name}" updated!`);
+                } else if (pendingLayerRef.current) {
+                    // Creating new territory
+                    const layer = pendingLayerRef.current;
+                    initializeLayerFeature(layer, data);
+                    applyLayerStyle(layer, data.color);
+                    
+                    // Add popup
+                    layer.bindPopup(createPopupContent(data));
+                    
+                    // Add click handler to open edit modal
+                    layer.on('click', () => {
+                        const props = layer.feature?.properties || {};
+                        setEditingTerritory({
+                            layer,
+                            name: props.name,
+                            description: props.description,
+                            color: props.color
+                        });
+                        setIsEditMode(true);
+                        setModalOpen(true);
+                    });
+                    
+                    // Add to map
+                    drawnItemsRef.current.addLayer(layer);
+                    pendingLayerRef.current = null;
+                    
+                    showNotification(`"${data.name}" created!`);
+                }
+                
+                setModalOpen(false);
+                setEditingTerritory(null);
+                updateTerritoriesList();
+                updateLabels();
+            };
+
+            // Handle modal close (cancel)
+            const handleModalClose = () => {
+                setModalOpen(false);
+                pendingLayerRef.current = null;
+                setEditingTerritory(null);
+            };
+
+            // Handle territory selection from list
+            const handleTerritorySelect = (territory) => {
+                const layer = territory.layer;
+                if (layer && layer.getBounds) {
+                    mapInstanceRef.current.fitBounds(layer.getBounds(), {
+                        padding: [50, 50],
+                        maxZoom: 5
+                    });
+                    layer.openPopup();
+                }
             };
 
             const handleSave = () => {
@@ -545,13 +1135,13 @@
                 const url = URL.createObjectURL(dataBlob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `fictional-borders-${Date.now()}.json`;
+                link.download = `atlas-fictiva-${Date.now()}.json`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
 
-                showNotification('Borders saved successfully!');
+                showNotification('Territories saved successfully!');
             };
 
             const handleLoad = (event) => {
@@ -565,26 +1155,44 @@
                         
                         // Clear existing layers
                         drawnItemsRef.current.clearLayers();
+                        labelsLayerRef.current.clearLayers();
                         
                         // Add loaded layers
                         L.geoJSON(data, {
                             style: (feature) => ({
-                                color: '#d4af37',
+                                color: feature.properties?.color || '#d4af37',
                                 weight: 3,
                                 opacity: 0.8,
                                 fillOpacity: 0.3
                             }),
                             onEachFeature: (feature, layer) => {
-                                drawnItemsRef.current.addLayer(layer);
+                                // Preserve feature data
+                                layer.feature = feature;
+                                
+                                const props = feature.properties || {};
                                 
                                 // Add popup
-                                const borderName = `Border ${drawnItemsRef.current.getLayers().length}`;
-                                layer.bindPopup(`<strong>${borderName}</strong><br><small>Click to edit properties</small>`);
+                                layer.bindPopup(createPopupContent(props));
+                                
+                                // Add click handler to open edit modal
+                                layer.on('click', () => {
+                                    setEditingTerritory({
+                                        layer,
+                                        name: props.name,
+                                        description: props.description,
+                                        color: props.color
+                                    });
+                                    setIsEditMode(true);
+                                    setModalOpen(true);
+                                });
+                                
+                                drawnItemsRef.current.addLayer(layer);
                             }
                         });
 
-                        setBorderCount(drawnItemsRef.current.getLayers().length);
-                        showNotification('Borders loaded successfully!');
+                        updateTerritoriesList();
+                        updateLabels();
+                        showNotification('Territories loaded successfully!');
                     } catch (error) {
                         showNotification('Error loading file!');
                         console.error('Error loading borders:', error);
@@ -592,15 +1200,16 @@
                 };
                 reader.readAsText(file);
                 
-                // Reset input
                 event.target.value = '';
             };
 
             const handleClear = () => {
-                if (drawnItemsRef.current && window.confirm('Clear all borders? This cannot be undone.')) {
+                if (drawnItemsRef.current && window.confirm('Clear all territories? This cannot be undone.')) {
                     drawnItemsRef.current.clearLayers();
+                    labelsLayerRef.current.clearLayers();
+                    setTerritories([]);
                     setBorderCount(0);
-                    showNotification('All borders cleared');
+                    showNotification('All territories cleared');
                 }
             };
 
@@ -634,12 +1243,16 @@
 
                     <div className="map-container">
                         <div ref={mapRef} id="map"></div>
+                        
+                        {/* Instructions toggle */}
                         <button 
                             className={`toggle-instructions ${showInstructions ? 'panel-visible' : ''}`}
                             onClick={() => setShowInstructions(true)}
                         >
                             Show Instructions
                         </button>
+                        
+                        {/* Instructions panel */}
                         <div className={`info-panel ${!showInstructions ? 'hidden' : ''}`}>
                             <h3>
                                 Instructions
@@ -661,11 +1274,39 @@
                                 </button>
                             </h3>
                             <p><strong>Draw:</strong> Use toolbar to create polygons, lines, or markers</p>
-                            <p><strong>Edit:</strong> Click edit icon, modify shapes, then save</p>
-                            <p><strong>Delete:</strong> Click trash icon to remove borders</p>
-                            <p><strong>Borders:</strong> {borderCount} drawn</p>
+                            <p><strong>Name:</strong> A dialog will appear to name each territory</p>
+                            <p><strong>Edit:</strong> Click any territory to rename or change color</p>
+                            <p><strong>Delete:</strong> Use trash icon in toolbar</p>
+                            <p><strong>Territories:</strong> {borderCount} created</p>
                         </div>
+
+                        {/* Territory list toggle */}
+                        {territories.length > 0 && (
+                            <button 
+                                className={`toggle-territories ${showTerritoryList ? 'panel-visible' : ''}`}
+                                onClick={() => setShowTerritoryList(true)}
+                            >
+                                Show Territories
+                            </button>
+                        )}
+                        
+                        {/* Territory list */}
+                        <TerritoryList 
+                            territories={territories}
+                            onSelect={handleTerritorySelect}
+                            onClose={() => setShowTerritoryList(false)}
+                            isVisible={showTerritoryList}
+                        />
                     </div>
+
+                    {/* Territory naming modal */}
+                    <TerritoryModal
+                        isOpen={modalOpen}
+                        onClose={handleModalClose}
+                        onSave={handleModalSave}
+                        initialData={editingTerritory}
+                        isEditing={isEditMode}
+                    />
 
                     {notification && (
                         <div className="notification">
